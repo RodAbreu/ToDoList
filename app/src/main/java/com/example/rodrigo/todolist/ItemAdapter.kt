@@ -9,7 +9,7 @@ import kotlinx.android.synthetic.main.view_holder.view.*
 
 
 //adapter gerencia os dados da recycler view
-class ItemAdapter(val atividades: List<String>)
+class ItemAdapter(val atividades: List<Atividade>)
     : RecyclerView.Adapter<ItemAdapter.ViewHolder>() {
 
     //metodo responsavel por inflar as views (xmls)
@@ -30,8 +30,8 @@ class ItemAdapter(val atividades: List<String>)
 
     //trabalha cada item do recycler view, setando as informações de cada item
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bindView(atividadeNome: String) {
-            itemView.nomeNovaAtividade.text = atividadeNome
+        fun bindView(atividade: Atividade) {
+            itemView.nomeNovaAtividade.text = atividade.Nome
         }
     }
 

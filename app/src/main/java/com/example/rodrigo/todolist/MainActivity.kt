@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
@@ -12,9 +13,11 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_CADASTRO: Int = 1
+        private const val ATIVIDADES = "ListaAtividades"
     }
 
-    private val atividadesList: MutableList<String> = mutableListOf()
+    private var atividadesList: MutableList<Atividade> = mutableListOf()
+
     var indexToDo: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,10 +34,24 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if(requestCode == REQUEST_CADASTRO && resultCode == Activity.RESULT_OK){
-            val novaAtividade: String? = data?.getStringExtra(CadastroAtividade.EXTRA_NOVA_ATIVIDADE)
+            val novaAtividade: Atividade? = data?.getSerializableExtra(CadastroAtividade.ATIVIDADE) as Atividade
             if (novaAtividade != null) {
+                //adiciona na lista a atividade
                 atividadesList.add(novaAtividade)
             }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        outState?.putSerializable(ATIVIDADES, atividadesList as ArrayList<String>)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+        super.onRestoreInstanceState(savedInstanceState)
+
+        if (savedInstanceState != null){
+            atividadesList = savedInstanceState.getSerializable(ATIVIDADES) as MutableList<Atividade>
         }
     }
 
