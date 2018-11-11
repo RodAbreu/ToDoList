@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
@@ -17,8 +16,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private var atividadesList: MutableList<Atividade> = mutableListOf()
-
-    var indexToDo: Int = -1
+    var indexAtividadeClicada = - 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,10 +32,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if(requestCode == REQUEST_CADASTRO && resultCode == Activity.RESULT_OK){
-            val novaAtividade: Atividade? = data?.getSerializableExtra(CadastroAtividade.ATIVIDADE) as Atividade
-            if (novaAtividade != null) {
-                //adiciona na lista a atividade
-                atividadesList.add(novaAtividade)
+            val atividade: Atividade? = data?.getSerializableExtra(CadastroAtividade.ATIVIDADE) as Atividade
+            if (atividade != null) {
+                if (indexAtividadeClicada >= 0){
+                    atividadesList.set(indexAtividadeClicada, atividade)
+                    indexAtividadeClicada = -1
+                }else{
+                    //adiciona na lista a atividade
+                    atividadesList.add(atividade)
+                }
             }
         }
     }
@@ -61,7 +64,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun carregaLista() {
-        val adapter = ItemAdapter(atividadesList)
+        val adapter = ItemAdapter(this,atividadesList)
+
+        adapter.setOnClickListener() { atividade, indexAtividadeClicada ->
+            this.indexAtividadeClicada = indexAtividadeClicada
+            val editaAtividade = Intent(this, CadastroAtividade::class.java)
+            editaAtividade.putExtra(CadastroAtividade.ATIVIDADE, atividade)
+            this.startActivityForResult(editaAtividade, REQUEST_CADASTRO)
+        }
+
         val layoutManager = LinearLayoutManager(this)
         val dividerItemDecoration = DividerItemDecoration(this, layoutManager.orientation)
 

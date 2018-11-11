@@ -35,9 +35,15 @@ class CadastroAtividade : AppCompatActivity() {
 
     private fun salvarCadastro() {
 
+        //verifica se o usuário digitou o nome da atividade
+        if(NomeAtividade.text.isEmpty()){
+            NomeAtividade.requestFocus()
+            NomeAtividade.setError(getString(R.string.campo_obrigatorio))
+            return
+        }
+
         val stringTest = NomeAtividade.text.toString()
         val atividade = Atividade(stringTest)
-
         val salvaCadastro = Intent(this, MainActivity::class.java)
         salvaCadastro.putExtra(ATIVIDADE, atividade)
         setResult(Activity.RESULT_OK, salvaCadastro)
