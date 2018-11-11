@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
-import android.widget.Button
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -16,8 +15,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val atividadesList: MutableList<String> = mutableListOf()
-
-
+    var indexToDo: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,9 +23,10 @@ class MainActivity : AppCompatActivity() {
 
 
         btnAddItem.setOnClickListener(){
-            val cadastrarItem = Intent(this,CadastroAtividade::class.java)
+            val cadastrarItem = Intent(this, CadastroAtividade::class.java)
             startActivityForResult(cadastrarItem, REQUEST_CADASTRO)
         }
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

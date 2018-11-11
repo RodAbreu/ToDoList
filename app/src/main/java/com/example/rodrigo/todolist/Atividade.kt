@@ -1,3 +1,5 @@
 package com.example.rodrigo.todolist
 
-data class Atividade (val Nome: String)
+import java.io.Serializable
+
+data class Atividade (val Nome: String): Serializable
