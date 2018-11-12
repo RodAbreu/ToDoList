@@ -6,7 +6,9 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.view_holder.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -28,6 +30,11 @@ class MainActivity : AppCompatActivity() {
             startActivityForResult(cadastrarItem, REQUEST_CADASTRO)
         }
 
+//        btnDone.setOnClickListener(){
+//            atividadesList.removeAt()
+//            carregaLista()
+//        }
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -37,6 +44,7 @@ class MainActivity : AppCompatActivity() {
                 if (indexAtividadeClicada >= 0){
                     atividadesList.set(indexAtividadeClicada, atividade)
                     indexAtividadeClicada = -1
+                    Toast.makeText(this, "Its toast!", Toast.LENGTH_SHORT).show()
                 }else{
                     //adiciona na lista a atividade
                     atividadesList.add(atividade)
@@ -66,11 +74,16 @@ class MainActivity : AppCompatActivity() {
     fun carregaLista() {
         val adapter = ItemAdapter(this,atividadesList)
 
-        adapter.setOnClickListener() { atividade, indexAtividadeClicada ->
+        adapter.setOnClickListener() { indexAtividadeClicada ->
             this.indexAtividadeClicada = indexAtividadeClicada
             val editaAtividade = Intent(this, CadastroAtividade::class.java)
-            editaAtividade.putExtra(CadastroAtividade.ATIVIDADE, atividade)
+            editaAtividade.putExtra(CadastroAtividade.ATIVIDADE, atividadesList.get(indexAtividadeClicada))
             this.startActivityForResult(editaAtividade, REQUEST_CADASTRO)
+        }
+
+        adapter.setOnCliqueDone {indexAtividadeClicada ->
+            atividadesList.removeAt(indexAtividadeClicada)
+            carregaLista()
         }
 
         val layoutManager = LinearLayoutManager(this)

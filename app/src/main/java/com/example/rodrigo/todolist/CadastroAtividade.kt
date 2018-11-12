@@ -12,8 +12,6 @@ class CadastroAtividade : AppCompatActivity() {
         const val ATIVIDADE: String = "Atividade"
     }
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cadastro_atividade)

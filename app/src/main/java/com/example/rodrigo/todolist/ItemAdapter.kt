@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.rodrigo.todolist.R.id.btnDone
 import kotlinx.android.synthetic.main.view_holder.view.*
 
 
@@ -13,8 +14,11 @@ import kotlinx.android.synthetic.main.view_holder.view.*
 class ItemAdapter(val context: Context, val atividades: List<Atividade>)
     : RecyclerView.Adapter<ItemAdapter.ViewHolder>() {
 
-    //variavel que representa o clique do usuario na view
-    var clique: ((atividade:Atividade, index: Int) -> Unit)? = null
+    //salva a funcao do clique no item
+    var clique: ((index: Int) -> Unit)? = null
+
+    //salva a função do clique no botao done do item
+    var cliqueDone: ((index: Int) -> Unit)? = null
 
     //metodo responsavel por inflar as views (xmls)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -29,23 +33,37 @@ class ItemAdapter(val context: Context, val atividades: List<Atividade>)
 
     //popula a view holder com as informações das atividades (seleciona qual posicao eu desejo alterar)
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bindView(context, atividades[position], clique)
+        holder.bindView(context, atividades[position], clique, cliqueDone)
     }
 
-    fun setOnClickListener(clique: ((atividade:Atividade, index: Int) -> Unit)){
+    fun setOnClickListener(clique: ((index: Int) -> Unit)){
         this.clique = clique
+    }
+
+    fun setOnCliqueDone(cliqueDone: ((index: Int) -> Unit)){
+        this.cliqueDone = cliqueDone
     }
 
     //trabalha cada item do recycler view, setando as informações de cada item
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bindView(context: Context, atividade: Atividade, clique: ((atividade:Atividade, index:Int) -> Unit)?) {
+        fun bindView(context: Context,
+                     atividade: Atividade,
+                     clique: ((index:Int) -> Unit)?,
+                     cliqueDone: ((index: Int) -> Unit)?){
+
             //itemView representa um item da lista
             itemView.nomeNovaAtividade.text = atividade.Nome
 
             if (clique != null){
                 itemView.setOnClickListener(){
-                    clique.invoke(atividade, adapterPosition)
+                    clique.invoke(adapterPosition)
 
+                }
+            }
+
+            if (cliqueDone != null){
+                itemView.btnDone.setOnClickListener(){
+                    cliqueDone.invoke(adapterPosition)
                 }
             }
 
