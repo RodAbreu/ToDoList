@@ -1,6 +1,7 @@
-package com.example.rodrigo.todolist
+package com.example.rodrigo.todolist.database
 
 import android.arch.persistence.room.*
+import com.example.rodrigo.todolist.entidades.Atividade
 
 @Dao
 interface AtividadeDAO {

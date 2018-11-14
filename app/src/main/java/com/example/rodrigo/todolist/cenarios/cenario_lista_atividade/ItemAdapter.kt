@@ -1,12 +1,12 @@
-package com.example.rodrigo.todolist
+package com.example.rodrigo.todolist.cenarios.cenario_lista_atividade
 
 import android.content.Context
-import android.content.Intent
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.rodrigo.todolist.R.id.btnDone
+import com.example.rodrigo.todolist.R
+import com.example.rodrigo.todolist.entidades.Atividade
 import kotlinx.android.synthetic.main.view_holder.view.*
 
 
