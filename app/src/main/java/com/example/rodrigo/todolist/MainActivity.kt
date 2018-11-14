@@ -9,6 +9,9 @@ import android.support.v7.widget.LinearLayoutManager
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.view_holder.*
+import org.jetbrains.anko.activityUiThreadWithContext
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,51 +21,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private var atividadesList: MutableList<Atividade> = mutableListOf()
-    var indexAtividadeClicada = - 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
 
-        btnAddItem.setOnClickListener(){
-            val cadastrarItem = Intent(this, CadastroAtividade::class.java)
-            startActivityForResult(cadastrarItem, REQUEST_CADASTRO)
-        }
-
-//        btnDone.setOnClickListener(){
-//            atividadesList.removeAt()
-//            carregaLista()
-//        }
-
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if(requestCode == REQUEST_CADASTRO && resultCode == Activity.RESULT_OK){
-            val atividade: Atividade? = data?.getSerializableExtra(CadastroAtividade.ATIVIDADE) as Atividade
-            if (atividade != null) {
-                if (indexAtividadeClicada >= 0){
-                    atividadesList.set(indexAtividadeClicada, atividade)
-                    indexAtividadeClicada = -1
-                    Toast.makeText(this, "Its toast!", Toast.LENGTH_SHORT).show()
-                }else{
-                    //adiciona na lista a atividade
-                    atividadesList.add(atividade)
-                }
-            }
-        }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle?) {
-        super.onSaveInstanceState(outState)
-        outState?.putSerializable(ATIVIDADES, atividadesList as ArrayList<String>)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
-        super.onRestoreInstanceState(savedInstanceState)
-
-        if (savedInstanceState != null){
-            atividadesList = savedInstanceState.getSerializable(ATIVIDADES) as MutableList<Atividade>
+        btnAddItem.setOnClickListener() {
+            val cadastrarAtividade = Intent(this, CadastroAtividade::class.java)
+            startActivity(cadastrarAtividade)
         }
     }
 
@@ -71,28 +38,52 @@ class MainActivity : AppCompatActivity() {
         carregaLista()
     }
 
-    fun carregaLista() {
-        val adapter = ItemAdapter(this,atividadesList)
-
-        adapter.setOnClickListener() { indexAtividadeClicada ->
-            this.indexAtividadeClicada = indexAtividadeClicada
-            val editaAtividade = Intent(this, CadastroAtividade::class.java)
-            editaAtividade.putExtra(CadastroAtividade.ATIVIDADE, atividadesList.get(indexAtividadeClicada))
-            this.startActivityForResult(editaAtividade, REQUEST_CADASTRO)
-        }
-
-        adapter.setOnCliqueDone {indexAtividadeClicada ->
-            atividadesList.removeAt(indexAtividadeClicada)
-            carregaLista()
-        }
-
-        val layoutManager = LinearLayoutManager(this)
-        val dividerItemDecoration = DividerItemDecoration(this, layoutManager.orientation)
-
-        rvList.adapter = adapter
-        rvList.layoutManager = layoutManager
-        rvList.addItemDecoration(dividerItemDecoration)
+    //quando o usuário gira o celular
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        outState?.putSerializable(ATIVIDADES, atividadesList as ArrayList<String>)
     }
 
+    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+        super.onRestoreInstanceState(savedInstanceState)
 
+        if (savedInstanceState != null) {
+            atividadesList = savedInstanceState.getSerializable(ATIVIDADES) as MutableList<Atividade>
+        }
+    }
+
+    fun carregaLista() {
+
+        val atividadeDAO = AppDataBase.getInstance(this).atividadeDAO()
+        doAsync {
+            atividadesList = atividadeDAO.getAll() as MutableList<Atividade>
+
+            activityUiThreadWithContext {
+                val adapter = ItemAdapter(this, atividadesList)
+
+                adapter.setOnClickListener() { indexAtividadeClicada ->
+                    val editaAtividade = Intent(this, CadastroAtividade::class.java)
+                    editaAtividade.putExtra(CadastroAtividade.ATIVIDADE, atividadesList.get(indexAtividadeClicada))
+                    startActivity(editaAtividade)
+                }
+
+                adapter.setOnCliqueDone { indexAtividadeClicada ->
+                    doAsync {
+                        atividadeDAO.delete(atividadesList.get(indexAtividadeClicada))
+                        uiThread {
+                            carregaLista()
+                            true
+                        }
+                    }
+                }
+
+                val layoutManager = LinearLayoutManager(this)
+
+                rvList.adapter = adapter
+                rvList.layoutManager = layoutManager
+            }
+        }
+    }
 }
+
+
